@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지 | 빛의 아갈탄</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .mypage-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    /* 사이드바 */
+    .mypage-sidebar {
+      background: white; border: 1px solid var(--border);
+      border-radius: 4px; overflow: hidden;
+      position: sticky; top: 96px;
+    }
+    .mypage-profile {
+      padding: 28px 24px;
+      text-align: center;
+      background: var(--navy);
+      color: white;
+    }
+    .mypage-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(200,151,58,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin: 0 auto 12px;
+      border: 2px solid rgba(200,151,58,0.5);
+    }
+    .mypage-name {
+      font-family: 'Noto Serif KR',serif;
+      font-size: 1rem; margin-bottom: 2px;
+    }
+    .mypage-role {
+      font-size: 0.7rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--gold);
+    }
+    .mypage-nav { padding: 12px 0; }
+    .mypage-nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 24px;
+      font-size: 0.85rem; color: var(--text-mid);
+      cursor: pointer; transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+    .mypage-nav-item:hover { background: var(--bg-light); color: var(--text-dark); }
+    .mypage-nav-item.active {
+      border-left-color: var(--gold);
+      color: var(--gold); background: rgba(200,151,58,0.05);
+      font-weight: 500;
+    }
+    /* 콘텐츠 패널 */
+    .mypage-panel { display: none; }
+    .mypage-panel.active { display: block; }
+    .panel-title {
+      font-family: 'Noto Serif KR',serif;
+      font-size: 1.3rem; font-weight: 400;
+      margin-bottom: 8px; color: var(--text-dark);
+    }
+    .panel-sub {
+      font-size: 0.82rem; color: var(--text-light);
+      margin-bottom: 28px;
+    }
+    /* 신청 카드 */
+    .application-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: 4px; padding: 24px;
+      margin-bottom: 16px; display: flex;
+      justify-content: space-between; align-items: flex-start;
+      gap: 20px; flex-wrap: wrap;
+    }
+    .application-card__info {}
+    .application-card__title {
+      font-family: 'Noto Serif KR',serif;
+      font-size: 1rem; font-weight: 500;
+      margin-bottom: 8px; color: var(--text-dark);
+    }
+    .application-card__meta {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      font-size: 0.8rem; color: var(--text-light);
+    }
+    .application-card__meta span { display: flex; align-items: center; gap: 4px; }
+    .application-card__right {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    }
+    .application-card__price {
+      font-family: 'Noto Serif KR',serif;
+      font-size: 1.1rem; color: var(--gold);
+    }
+    /* 프로필 편집 폼 */
+    .profile-edit {
+      background: white; border: 1px solid var(--border);
+      border-radius: 4px; padding: 32px;
+    }
+    .profile-avatar-edit {
+      display: flex; align-items: center; gap: 24px; margin-bottom: 28px;
+    }
+    .profile-avatar-big {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--bg-cream);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      border: 2px solid var(--border);
+    }
+    /* 통계 카드 */
+    .stat-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: 4px; padding: 20px; text-align: center;
+    }
+    .stat-card__num {
+      font-family: 'Noto Serif KR',serif;
+      font-size: 1.8rem; color: var(--gold); margin-bottom: 4px;
+    }
+    .stat-card__label { font-size: 0.78rem; color: var(--text-light); }
+    @media (max-width: 768px) {
+      .mypage-layout { grid-template-columns: 1fr; }
+      .mypage-sidebar { position: static; }
+      .stat-cards { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="page-header__label">MEMBER</span>
+  <h1 class="page-header__title">마이페이지</h1>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="mypage-layout">
+
+      <!-- 사이드바 -->
+      <div class="mypage-sidebar">
+        <div class="mypage-profile">
+          <div class="mypage-avatar">👤</div>
+          <div class="mypage-name" id="mp-name">-</div>
+          <div class="mypage-role" id="mp-role">MEMBER</div>
+        </div>
+        <nav class="mypage-nav">
+          <div class="mypage-nav-item active" onclick="showPanel('dashboard')">📊 대시보드</div>
+          <div class="mypage-nav-item" onclick="showPanel('applications')">📋 신청 내역</div>
+          <div class="mypage-nav-item" onclick="showPanel('profile')">👤 프로필 수정</div>
+          <div class="mypage-nav-item" onclick="showPanel('password')">🔒 비밀번호 변경</div>
+          <div class="mypage-nav-item" style="border-top:1px solid var(--border); margin-top:8px; padding-top:8px;" onclick="Auth.logout()">🚪 로그아웃</div>
+        </nav>
+      </div>
+
+      <!-- 콘텐츠 -->
+      <div>
+        <!-- 대시보드 -->
+        <div class="mypage-panel active" id="panel-dashboard">
+          <h2 class="panel-title">안녕하세요, <span id="mp-name2"></span>님! 👋</h2>
+          <p class="panel-sub">당신의 영적 여정을 한눈에 확인하세요.</p>
+          <div class="stat-cards" id="stat-cards">
+            <div class="stat-card"><div class="stat-card__num" id="stat-total">-</div><div class="stat-card__label">총 신청 세미나</div></div>
+            <div class="stat-card"><div class="stat-card__num" id="stat-complete">-</div><div class="stat-card__label">결제 완료</div></div>
+            <div class="stat-card"><div class="stat-card__num" id="stat-pending">-</div><div class="stat-card__label">결제 대기</div></div>
+          </div>
+          <h3 style="font-size:0.9rem;font-weight:600;margin-bottom:16px;color:var(--text-mid);">최근 신청 내역</h3>
+          <div id="recent-apps"></div>
+        </div>
+
+        <!-- 신청 내역 -->
+        <div class="mypage-panel" id="panel-applications">
+          <h2 class="panel-title">세미나 신청 내역</h2>
+          <p class="panel-sub">신청한 세미나 전체 목록입니다.</p>
+          <div id="all-apps"></div>
+        </div>
+
+        <!-- 프로필 수정 -->
+        <div class="mypage-panel" id="panel-profile">
+          <h2 class="panel-title">프로필 수정</h2>
+          <p class="panel-sub">회원 정보를 수정합니다.</p>
+          <div class="profile-edit">
+            <div class="profile-avatar-edit">
+              <div class="profile-avatar-big">👤</div>
+              <div>
+                <div style="font-size:0.85rem;color:var(--text-mid);">프로필 사진 변경 기능은 준비 중입니다.</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">이름 <span class="required">*</span></label>
+              <input type="text" class="form-input" id="p-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">이메일</label>
+              <input type="email" class="form-input" id="p-email" disabled style="background:var(--bg-cream);color:var(--text-light);">
+              <div class="form-hint">이메일은 변경할 수 없습니다.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">전화번호</label>
+              <input type="tel" class="form-input" id="p-phone" oninput="formatPhone(this)" maxlength="13" placeholder="010-0000-0000" autocomplete="tel">
+            </div>
+            <div class="form-group">
+              <label class="form-label">생년월일</label>
+              <input type="text" class="form-input" id="p-birthdate" placeholder="예: 1993-03-18" maxlength="10" autocomplete="bday" oninput="formatBirthdateInput(this)">
+              <div class="form-hint">숫자만 입력하면 자동으로 - 가 붙습니다 (예: 19930318 → 1993-03-18)</div>
+            </div>
+            <button class="btn btn--primary mt-8" onclick="updateProfile()">변경사항 저장</button>
+          </div>
+        </div>
+
+        <!-- 비밀번호 변경 -->
+        <div class="mypage-panel" id="panel-password">
+          <h2 class="panel-title">비밀번호 변경</h2>
+          <p class="panel-sub">현재 비밀번호를 확인 후 새 비밀번호를 설정합니다.</p>
+          <div class="profile-edit">
+            <div class="form-group">
+              <label class="form-label">현재 비밀번호 <span class="required">*</span></label>
+              <input type="password" class="form-input" id="pw-current">
+              <div class="form-error" id="e-pw-current"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">새 비밀번호 <span class="required">*</span></label>
+              <input type="password" class="form-input" id="pw-new" placeholder="8자 이상">
+              <div class="form-error" id="e-pw-new"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">새 비밀번호 확인 <span class="required">*</span></label>
+              <input type="password" class="form-input" id="pw-new2">
+              <div class="form-error" id="e-pw-new2"></div>
+            </div>
+            <button class="btn btn--primary mt-8" onclick="changeMyPassword()">비밀번호 변경</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  renderNavbar('');
+  renderFooter();
+
+  /* 날짜+시간 포맷 헬퍼 (밀리초 타임스탬프 OR ISO 문자열 모두 처리) */
+  function formatDateTime(ts) {
+    if (!ts) return '-';
+    const d = (typeof ts === 'string' && ts.includes('-') && ts.length > 8)
+      ? new Date(ts)
+      : new Date(Number(ts));
+    if (isNaN(d.getTime())) return '-';
+    const date = d.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+    const time = d.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+    return `${date} ${time}`;
+  }
+
+  function formatPhone(input) {
+    let v = input.value.replace(/\D/g, '');
+    if (v.length <= 3) { input.value = v; }
+    else if (v.length <= 7) { input.value = v.slice(0,3)+'-'+v.slice(3); }
+    else {
+      if (v.startsWith('02')) input.value = v.slice(0,2)+'-'+v.slice(2,6)+(v.length>6?'-'+v.slice(6,10):'');
+      else input.value = v.slice(0,3)+'-'+v.slice(3,7)+(v.length>7?'-'+v.slice(7,11):'');
+    }
+  }
+
+  if (!Auth.requireLogin('mypage.html')) { /* redirect handled */ }
+
+  const session = Auth.getSession();
+  if (session) {
+    document.getElementById('mp-name').textContent = session.name;
+    document.getElementById('mp-name2').textContent = session.name;
+    document.getElementById('mp-role').textContent = session.role === 'admin' ? 'ADMINISTRATOR' : 'MEMBER';
+    document.getElementById('p-name').value = session.name;
+    document.getElementById('p-email').value = session.email;
+    document.getElementById('p-phone').value = session.phone || '';
+    document.getElementById('p-birthdate').value = session.birthdate || ''
+  }
+
+  /* ── 패널 전환 ── */
+  function showPanel(name) {
+    document.querySelectorAll('.mypage-panel').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.mypage-nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`panel-${name}`).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (name === 'dashboard' || name === 'applications') loadApplications();
+  }
+
+  /* ── 신청 내역 로드 ── */
+  async function loadApplications() {
+    try {
+      const allAppsRaw = await SB.getAll('applications', { limit: 200 });
+      const myApps = allAppsRaw.filter(a => a.user_id === session.id);
+      myApps.sort((a,b) => b.created_at - a.created_at);
+
+      // 통계
+      const total = myApps.length;
+      const complete = myApps.filter(a => a.payment_status === '결제완료').length;
+      const pending = myApps.filter(a => a.payment_status === '결제대기').length;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-complete').textContent = complete;
+      document.getElementById('stat-pending').textContent = pending;
+
+      const renderApp = (a) => `
+        <div class="application-card" id="app-card-${a.id}">
+          <div class="application-card__info">
+            <div class="application-card__title">${a.seminar_title || '-'}</div>
+            <div class="application-card__meta">
+              <span>📅 ${a.seminar_date || '-'}</span>
+              <span>💳 ${a.payment_method || '-'}</span>
+              <span>🕒 신청: ${formatDateTime(a.created_at)}</span>
+            </div>
+          </div>
+          <div class="application-card__right">
+            <div class="application-card__price">${formatPrice(a.payment_amount)}</div>
+            <span class="badge ${a.payment_status === '결제완료' ? 'badge--green' : a.payment_status === '결제취소' ? 'badge--red' : 'badge--gold'}">${a.payment_status}</span>
+            <a href="contact.html?type=cancel" style="margin-top:6px;display:inline-block;font-size:0.74rem;color:var(--text-light);text-decoration:none;border:1px solid var(--border);border-radius:4px;padding:3px 10px;" title="취소는 문의 폼으로 접수">✉ 취소문의</a>
+          </div>
+        </div>`;
+
+      const recent = myApps.slice(0, 3);
+      document.getElementById('recent-apps').innerHTML = recent.length
+        ? recent.map(renderApp).join('') + (myApps.length > 3 ? `<button class="btn btn--outline btn--sm mt-16" onclick="showPanel('applications')">전체 보기 (${myApps.length}건)</button>` : '')
+        : '<p style="color:var(--text-light);font-size:0.9rem;">아직 신청한 세미나가 없습니다. <a href="seminar.html" style="color:var(--gold);">세미나 보러가기 →</a></p>';
+
+      document.getElementById('all-apps').innerHTML = myApps.length
+        ? myApps.map(renderApp).join('')
+        : '<p style="color:var(--text-light);font-size:0.9rem;">신청 내역이 없습니다. <a href="seminar.html" style="color:var(--gold);">세미나 보러가기 →</a></p>';
+
+    } catch (e) {
+      document.getElementById('recent-apps').innerHTML = '<p style="color:var(--text-light);">데이터를 불러오지 못했습니다.</p>';
+    }
+  }
+
+  /* ── 신청 내역 삭제 ── */
+  async function deleteMyApp(id, seminarId, paymentStatus) {
+    if (!confirm('이 신청 내역을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) return;
+    try {
+      await SB.remove('applications', id);
+      // 결제취소가 아니었으면 세미나 인원 감소
+      if (seminarId && paymentStatus !== '결제취소') {
+        try {
+          const sem = await SB.getOne('seminars', seminarId);
+          if (sem) {
+            const current = parseInt(sem.current_applicants) || 0;
+            if (current > 0) await SB.update('seminars', seminarId, { current_applicants: current - 1 });
+          }
+        } catch(e) {}
+      }
+      Toast.show('신청 내역이 삭제되었습니다.', 'success');
+      loadApplications();
+    } catch(e) {
+      Toast.show('삭제 중 오류가 발생했습니다.', 'error');
+    }
+  }
+
+  /* ── 프로필 업데이트 ── */
+  function formatBirthdateInput(el) {
+    let v = el.value.replace(/\D/g, '');
+    if (v.length > 8) v = v.slice(0, 8);
+    if (v.length >= 5) v = v.slice(0,4) + '-' + v.slice(4);
+    if (v.length >= 8) v = v.slice(0,7) + '-' + v.slice(7);
+    el.value = v;
+  }
+
+  /* ── 프로필 업데이트 ── */
+  async function updateProfile() {
+    const name = document.getElementById('p-name').value.trim();
+    const phone = document.getElementById('p-phone').value.trim();
+    const birthdate = document.getElementById('p-birthdate').value.trim();
+    if (!name) { Toast.show('이름을 입력해주세요.', 'error'); return; }
+    try {
+      await SB.update('users', session.id, { name, phone, birthdate });
+      // 세션 업데이트
+      const updated = { ...session, name, phone, birthdate };
+      sessionStorage.setItem('agastya_session', JSON.stringify(updated));
+      localStorage.setItem('agastya_session', JSON.stringify(updated));
+      Toast.show('프로필이 업데이트되었습니다.', 'success');
+      document.getElementById('mp-name').textContent = name;
+      document.getElementById('mp-name2').textContent = name;
+    } catch (e) {
+      Toast.show('업데이트 중 오류가 발생했습니다.', 'error');
+    }
+  }
+
+  /* ── 비밀번호 변경 ── */
+  async function changeMyPassword() {
+    const cur = document.getElementById('pw-current').value;
+    const nw = document.getElementById('pw-new').value;
+    const nw2 = document.getElementById('pw-new2').value;
+    const showErr = (id, msg) => {
+      const el = document.getElementById(id);
+      el.textContent = msg; el.classList.toggle('show', !!msg);
+    };
+    let ok = true;
+
+    // 현재 비밀번호 검증
+    const hash = await Auth.hashPassword(cur);
+    const user = await SB.getOne('users', session.id);
+    if (!user || user.password_hash !== hash) {
+      showErr('e-pw-current', '현재 비밀번호가 올바르지 않습니다.'); ok = false;
+    } else showErr('e-pw-current', '');
+
+    if (!nw || nw.length < 8) { showErr('e-pw-new', '8자 이상 입력해주세요.'); ok = false; }
+    else showErr('e-pw-new', '');
+
+    if (nw !== nw2) { showErr('e-pw-new2', '비밀번호가 일치하지 않습니다.'); ok = false; }
+    else showErr('e-pw-new2', '');
+
+    if (!ok) return;
+    const result = await Auth.changePassword(session.id, nw);
+    if (result.success) {
+      Toast.show('비밀번호가 변경되었습니다. 다시 로그인해주세요.', 'success');
+      setTimeout(() => Auth.logout(), 2000);
+    } else {
+      Toast.show(result.message, 'error');
+    }
+  }
+
+  loadApplications();
+</script>
+</body>
+</html>

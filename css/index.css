@@ -1,0 +1,292 @@
+/* ── 홈페이지 전용 스타일 ── */
+
+/* 히어로 */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.hero__bg { position: absolute; inset: 0; }
+.hero__img { width: 100%; height: 100%; object-fit: cover; }
+.hero__overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(15,22,36,0.35) 0%, rgba(15,22,36,0.55) 100%);
+}
+.hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  padding: 0 20px;
+}
+.hero__label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 20px;
+}
+.hero__title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.hero__sub {
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 40px;
+  letter-spacing: 0.05em;
+}
+.hero__btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.hero__scroll {
+  position: absolute;
+  bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; color: rgba(255,255,255,0.6);
+  font-size: 0.65rem; letter-spacing: 0.25em;
+  z-index: 2;
+}
+.hero__scroll-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+  50% { opacity: 0.4; transform: scaleY(0.6); transform-origin: top; }
+}
+
+/* 인트로 섹션 */
+.intro-section__inner {
+  max-width: 740px;
+  margin: 0 auto;
+  text-align: center;
+}
+.intro-section__lead {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.9;
+  color: var(--text-dark);
+  margin-bottom: 28px;
+}
+.intro-section__text {
+  font-size: 0.95rem;
+  line-height: 2;
+  margin-bottom: 16px;
+}
+
+/* 어바웃 블록 */
+.about-blocks {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 40px;
+}
+.bg-cream { background: var(--bg-cream); }
+.bg-navy { background: var(--navy); }
+
+/* 서비스 카드 */
+.service-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.service-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.service-card__img-wrap { height: 220px; overflow: hidden; }
+.service-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.service-card:hover .service-card__img { transform: scale(1.04); }
+.service-card__body { padding: 28px; }
+.service-card__num {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 8px;
+}
+.service-card__title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+.service-card__text {
+  font-size: 0.875rem;
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+/* 빛의 법칙 */
+.law-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.law-section__img { border-radius: 2px; overflow: hidden; }
+
+/* 리더 */
+.leader-block {
+  max-width: 740px;
+  margin: 0 auto;
+  text-align: center;
+}
+.leader-block__name {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+.leader-block__name-en {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 28px;
+}
+.leader-block__desc {
+  font-size: 0.9rem;
+  line-height: 2;
+  color: var(--text-mid);
+  text-align: left;
+}
+
+/* 대표 메시지 */
+.message-block {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+.message-block p {
+  font-size: 0.95rem;
+  line-height: 2;
+  color: var(--text-mid);
+  margin-bottom: 20px;
+}
+.message-block .text-gold { color: var(--gold); }
+.message-sign {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+/* 뉴스 */
+.news-important__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+}
+.news-list { display: flex; flex-direction: column; }
+.news-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.news-item:last-child { border-bottom: none; }
+.news-item__date {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  white-space: nowrap;
+  min-width: 80px;
+}
+.news-item__title {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  line-height: 1.5;
+}
+
+/* 아티클 카드 */
+.article-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.article-card:hover { box-shadow: var(--shadow-md); }
+.article-card__img-wrap { height: 240px; overflow: hidden; }
+.article-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.article-card:hover .article-card__img { transform: scale(1.04); }
+.article-card__body { padding: 24px; }
+.article-card__sub {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+.article-card__title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.article-card__text {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+/* 세미나 배너 */
+.seminar-banner {
+  background: var(--navy-mid);
+  padding: 60px 0;
+}
+.seminar-banner__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+/* 컨택트 */
+.contact-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+.line-box {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-top: 16px;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .law-section { grid-template-columns: 1fr; gap: 40px; }
+  .law-section__img { order: -1; }
+  .contact-block { grid-template-columns: 1fr; gap: 32px; }
+  .seminar-banner__inner { flex-direction: column; text-align: center; }
+  .news-item { flex-wrap: wrap; }
+}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 비밀번호 재설정 (일회용)</title>
+  <style>
+    body { font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 24px; background:#f5f5f5; }
+    h2 { margin-bottom: 24px; }
+    button { padding: 10px 24px; background: #c8973a; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+    pre { background: white; padding: 16px; border-radius: 4px; font-size: 0.82rem; word-break: break-all; white-space: pre-wrap; border: 1px solid #ddd; margin-top: 16px; }
+    .ok { color: green; font-weight: 600; }
+    .err { color: red; }
+  </style>
+</head>
+<body>
+<h2>🔐 관리자 비밀번호 재설정 (일회용)</h2>
+<p style="font-size:0.88rem;color:#666;margin-bottom:20px;">
+  이 페이지는 관리자 계정의 비밀번호를 <strong>agastya-agartan2026</strong> 으로 변경합니다.<br>
+  완료 후 반드시 이 파일을 삭제하거나 접근을 차단하세요.
+</p>
+<button onclick="runReset()">비밀번호 변경 실행</button>
+<pre id="log">대기 중...</pre>
+
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+const TARGET_USERNAME = 'admin';     // 변경할 관리자 아이디
+const NEW_PASSWORD    = 'agastya-agartan2026';
+const PBKDF2_ITER     = 100000;
+
+function log(msg, cls) {
+  const el = document.getElementById('log');
+  el.innerHTML += `<span${cls ? ` class="${cls}"` : ''}>${msg}</span>\n`;
+}
+
+async function pbkdf2Hash(password, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(salt), iterations: PBKDF2_ITER },
+    keyMaterial, 256
+  );
+  const hashHex = Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2,'0')).join('');
+  return `pbkdf2:${salt}:${hashHex}`;
+}
+
+function generateSalt() {
+  const arr = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function runReset() {
+  document.getElementById('log').innerHTML = '';
+  log('🔍 사용자 목록 조회 중...');
+  try {
+    const users = await SB.getAll('users', { limit: 500 });
+    log(`   → ${users.length}명 조회됨`);
+
+    const admins = users.filter(u => u.role === 'admin');
+    if (!admins.length) { log('❌ 관리자 계정이 없습니다.', 'err'); return; }
+
+    log(`   → 관리자 ${admins.length}명 발견: ${admins.map(u=>u.username).join(', ')}`);
+
+    for (const admin of admins) {
+      log(`\n🔑 [${admin.username}] 비밀번호 해시 생성 중...`);
+      const salt = generateSalt();
+      const hash = await pbkdf2Hash(NEW_PASSWORD, salt);
+      log(`   salt: ${salt}`);
+      log(`   hash: ${hash.substring(0,40)}...`);
+
+      const ok = await SB.update('users', admin.id, { password_hash: hash });
+      if (ok) {
+        log(`   ✅ [${admin.username}] 비밀번호 변경 완료!`, 'ok');
+      } else {
+        log(`   ❌ [${admin.username}] 변경 실패`, 'err');
+      }
+    }
+
+    log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    log('✅ 완료! 새 비밀번호: agastya-agartan2026', 'ok');
+    log('⚠️  보안을 위해 이 페이지(reset-admin-pw.html)를 즉시 삭제하거나 접근을 차단하세요!', 'err');
+  } catch(e) {
+    log('❌ 오류: ' + e.message, 'err');
+  }
+}
+</script>
+</body>
+</html>
