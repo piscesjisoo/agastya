@@ -3664,7 +3664,7 @@
     if (btn) { btn.disabled = false; btn.textContent = '📤 전체 내보내기 (JSON)'; }
   }
 
-  async function dbImportAll(input) {
+async function dbImportAll(input) {
     const file = input.files[0];
     if (!file) return;
     if (!confirm(
@@ -3674,17 +3674,34 @@
       '계속할까요?'
     )) { input.value = ''; return; }
     dbLogClear();
+
+    // 날짜 정규화 헬퍼
+    function normalizeDates(row) {
+      const r = {...row};
+      Object.keys(r).forEach(k => {
+        const v = r[k];
+        // ISO 문자열 → 밀리초 (bigint 컬럼용)
+        if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)) {
+          const ms = new Date(v).getTime();
+          if (!isNaN(ms)) r[k] = ms;
+        }
+        // 밀리초 숫자 → ISO 문자열 (timestamptz 컬럼용: original_created_at 등)
+        if (k === 'original_created_at' && typeof v === 'number' && v > 1e12) {
+          r[k] = new Date(v).toISOString();
+        }
+      });
+      return r;
+    }
+
     try {
       const text = await file.text();
       const backup = JSON.parse(text);
       if (!backup.tables) throw new Error('올바른 백업 파일이 아닙니다.');
       dbLog(`⏳ 복원 시작... (버전 ${backup.version || 1}, 내보낸 시각: ${backup.exported_at || '알 수 없음'})`);
 
-      /* ── ① site_content: key 기준 upsert (재배포 후 ID가 달라져도 콘텐츠 복원 보장) ── */
       const scRows = backup.tables['site_content'];
       if (scRows && scRows.length > 0) {
         dbLog(`✏️ site_content(페이지 콘텐츠) 복원 중... (${scRows.length}건)`);
-        // 현재 DB의 key→id 맵 구성
         const existing = await fetchAllPages('site_content');
         const keyMap = {};
         existing.forEach(r => { if (r.key) keyMap[r.key] = r.id; });
@@ -3694,10 +3711,8 @@
           const { gs_project_id, gs_table_name, deleted, id, ...fields } = row;
           try {
             if (keyMap[row.key]) {
-              // 기존 key 존재 → 콘텐츠 업데이트
               await SB.update('site_content', keyMap[row.key], { content: fields.content });
             } else {
-              // 신규 key → 삽입
               await SB.insert('site_content', fields);
             }
             upserted++;
@@ -3708,7 +3723,6 @@
         dbLog('⏭ site_content: 데이터 없음');
       }
 
-      /* ── ② 나머지 테이블: ID 기준 신규 삽입 ── */
       const otherTables = ['users', 'seminars', 'news', 'inquiries', 'applications'];
       for (const t of otherTables) {
         const rows = backup.tables[t];
@@ -3719,15 +3733,17 @@
         for (const row of rows) {
           if (existingIds.has(row.id)) { skipped++; continue; }
           const { gs_project_id, gs_table_name, deleted, ...data } = row;
-          // applications: created_at 원본값을 original_created_at 필드에 보존
-          // (복원 시 API가 created_at을 현재 시간으로 덮어쓰므로)
           if (t === 'applications' && data.created_at) {
-            data.original_created_at = data.created_at;
+            data.original_created_at = typeof data.created_at === 'string'
+              ? data.created_at
+              : new Date(data.created_at).toISOString();
           }
+          // 날짜 정규화 적용
+          const normalized = normalizeDates(data);
           try {
-            await SB.insert(t, data);
+            await SB.insert(t, normalized);
             added++;
-          } catch { skipped++; }
+          } catch(e) { skipped++; }
         }
         dbLog(`✅ ${t}: ${added}건 추가, ${skipped}건 건너뜀`);
       }
@@ -3740,7 +3756,6 @@
     }
     input.value = '';
   }
-
   /* ════════════════════════════════════════
      대시보드
   ════════════════════════════════════════ */
